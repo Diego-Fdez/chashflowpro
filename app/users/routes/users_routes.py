@@ -1,9 +1,9 @@
 from fastapi import APIRouter, status, HTTPException, Response, Depends
 from sqlalchemy.orm import Session
-from app.users.models.users_models import User_Model, User_Create
+import uuid
+from app.users.models.users_models import User_Model
 from app.database.database import get_db
 from app.schemas import schemas
-from app.utils.hash_generator import hash, verify_hash
 
 
 # create an instance of the APIRouter class
@@ -15,26 +15,26 @@ router = APIRouter(
 
 
 # define a route to get user by id
-@router.get("/{user_id}")
-async def get_user_by_id(user_id: int):
-    return {"id": id}
+@router.get("/{user_id}", response_description="Get user detail", response_model=User_Model, 
+            status_code=status.HTTP_200_OK)
+async def get_user_by_id(user_id: uuid.UUID, db: Session = Depends(get_db)):
+    user = db.query(schemas.User_Schema).filter(schemas.User_Schema.id == user_id).first()
+    # if user is None return an exception:
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"User with id: {user_id} not found")
+    return user
 
 
-# define a route to create a new user
-@router.post("/", response_description="Create a new user", response_model=User_Model, 
-                status_code=status.HTTP_201_CREATED)
-async def create_user(user: User_Create, db: Session = Depends(get_db)):
-    #hash the sub - user.sub
-    hashed_sub = hash(user.sub)
-    user.sub = hashed_sub
-    # This creates a new `User_Schema` object with the same data as the
-    # `user` object.
-    new_user = schemas.User_Schema(**user.dict())
-    # This adds the new `User_Schema` object to the database.
-    db.add(new_user)
-    # This commits the changes to the database.
-    db.commit()
-    # This refreshes the object in memory with the changes from the database.
-    db.refresh(new_user)
-    print(type(new_user.id))
-    return new_user
+# define a route to update all users
+@router.get("/", response_description="Get all users", response_model=list[User_Model], 
+            status_code=status.HTTP_200_OK)
+async def get_all_users(db: Session = Depends(get_db)):
+    # query the database for all users
+    users = db.query(schemas.User_Schema).all()
+    # if users is None or [] return an exception:
+    if users == []:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"No users found")
+    
+    return users
