@@ -30,3 +30,10 @@ class Login_User(BaseModel):
     access_token: str
     user: User_Model
     token_type: str
+
+# model for update user
+class Update_User(BaseModel):
+    username: Optional[str] = None
+    phone_number: Optional[str] = None
+    class Config:
+        orm_mode = True
