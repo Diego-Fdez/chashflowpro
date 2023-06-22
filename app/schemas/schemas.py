@@ -60,6 +60,8 @@ class Product_Schema(Base):
     description = Column(String(250), nullable=True)
     category_id = Column(UUID, ForeignKey("categories.id", ondelete='CASCADE'), nullable=False)
     category = relationship('Category_Schema')
+    user_id = Column(UUID, ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
+    user = relationship('User_Schema')
 
 
 # create a class for the orders schema
