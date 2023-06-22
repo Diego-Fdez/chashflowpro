@@ -74,6 +74,16 @@ class Order_Schema(Base):
     client = relationship('Client_Schema')
     user_id = Column(UUID, ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
     user = relationship('User_Schema')
+
+
+class Order_Item_Schema(Base):
+    __tablename__ = "order_items"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False)
+    quantity = Column(Integer, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+    updated_at = Column(TIMESTAMP(timezone=True), nullable=True, onupdate=func.now())
+    order_id = Column(UUID, ForeignKey("orders.id", ondelete='CASCADE'), nullable=False)
+    order = relationship('Order_Schema')
     product_id = Column(UUID, ForeignKey("products.id", ondelete='CASCADE'), nullable=False)
     product = relationship('Product_Schema')
 
