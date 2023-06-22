@@ -10,9 +10,12 @@ class User_Create(BaseModel):
     username: str
     phone_number: Optional[str] = None
 
-
-class User_Model(User_Create):
+# model for user
+class User_Model(BaseModel):
     id: uuid.UUID
+    email: EmailStr
+    username: str
+    phone_number: Optional[str] = None
     created_at: datetime
     is_active: bool
     is_admin: bool
@@ -21,3 +24,9 @@ class User_Model(User_Create):
     is_pro: bool
     class Config:
         orm_mode = True
+
+# model for Login User
+class Login_User(BaseModel):
+    access_token: str
+    user: User_Model
+    token_type: str
